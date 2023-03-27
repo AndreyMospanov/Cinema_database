@@ -59,6 +59,12 @@ sold BIT NOT NULL DEFAULT 0,		--order status: ticket sold if value equals 1
 order_date DATETIME DEFAULT GETDATE()
 );
 
+
+
+
+
+/*Создание представлений, процедур и запросы к ним:*/
+
 GO
 CREATE VIEW Schedule_FullView
 AS
@@ -119,8 +125,11 @@ IF(@row < (SELECT row FROM Halls JOIN Schedule AS s ON s.hall_id = Halls.id WHER
 BEGIN
 	IF(@seat <= (SELECT seat FROM Halls JOIN Schedule AS s ON s.hall_id = Halls.id WHERE s.id = @schedule_id))
 	BEGIN	
+	IF(SELECT id FROM Orders WHERE Orders.row = @row AND Orders.seat = @seat AND schedule_id = @schedule_id ) IS NULL
+		BEGIN
 		INSERT INTO  Orders VALUES
 		(@client_id, @schedule_id, @row, @seat, 0, 1, GETDATE())
+		END
 	END
 END
 

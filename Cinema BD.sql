@@ -1,3 +1,10 @@
+USE [master];
+GO
+IF DB_ID('Cinema') IS NOT NULL
+BEGIN
+	DROP DATABASE[Cinema];
+END
+
 CREATE DATABASE Cinema;
 GO
 USE [Cinema];
@@ -11,8 +18,7 @@ length INT NOT NULL CHECK(length > 0),	--movie duration in minutes
 genre NVARCHAR(50) NOT NULL CHECK(genre != ''),
 year INT NOT NULL CHECK(year > 1880 AND year <= YEAR(GETDATE())),
 poster VARCHAR(MAX),			--reference to pic with poster
-price_multiplier FLOAT DEFAULT 1.0,	
-age_restriction INT NOT NULL DEFAULT 18	
+age_restriction INT DEFAULT 18	
 );
 
 CREATE TABLE Clients
@@ -38,8 +44,7 @@ id INT PRIMARY KEY IDENTITY (1,1),
 movie_id INT NOT NULL REFERENCES Movies(id) ON DELETE NO ACTION,
 hall_id INT NOT NULL REFERENCES Halls(id) ON DELETE NO ACTION,
 show_time DATETIME NOT NULL CHECK (show_time > GETDATE()),
-price MONEY NOT NULL DEFAULT 200,
-price_multiplier FLOAT DEFAULT 1.0		--price multiplier depending on time of show 
+price MONEY NOT NULL DEFAULT 200
 );
 
 CREATE TABLE Orders
@@ -47,6 +52,8 @@ CREATE TABLE Orders
 id INT PRIMARY KEY IDENTITY (1,1),
 client_id INT NOT NULL REFERENCES Clients(id) ON DELETE NO ACTION,
 schedule_id INT NOT NULL REFERENCES Schedule(id) ON DELETE NO ACTION,
+row INT NOT NULL,
+seat INT NOT NULL,
 booking BIT NOT NULL DEFAULT 0,		--order status: ticket booked if value equals 1
 sold BIT NOT NULL DEFAULT 0,		--order status: ticket sold if value equals 1
 order_date DATETIME DEFAULT GETDATE()

@@ -47,8 +47,8 @@ CREATE TABLE Orders
 id INT PRIMARY KEY IDENTITY (1,1),
 client_id INT NOT NULL REFERENCES Clients(id) ON DELETE NO ACTION,
 schedule_id INT NOT NULL REFERENCES Schedule(id) ON DELETE NO ACTION,
-booking BIT NOT NULL DEFAULT 0,		--order status: ticked booked if value equals 1
-sold BIT NOT NULL DEFAULT 0,		--order status: ticked sold if value equals 1
+booking BIT NOT NULL DEFAULT 0,		--order status: ticket booked if value equals 1
+sold BIT NOT NULL DEFAULT 0,		--order status: ticket sold if value equals 1
 order_date DATETIME DEFAULT GETDATE()
 );
 

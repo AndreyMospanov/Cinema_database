@@ -7,11 +7,12 @@ CREATE TABLE Movies
 (
 id INT PRIMARY KEY IDENTITY(1,1),
 movie_name NVARCHAR(MAX) NOT NULL CHECK(movie_name != ''),
+length INT NOT NULL CHECK(length > 0),	--movie duration in minutes
 genre NVARCHAR(50) NOT NULL CHECK(genre != ''),
 year INT NOT NULL CHECK(year > 1880 AND year <= YEAR(GETDATE())),
-poster VARCHAR(MAX),			--ссылка на картинку с постером
-price_multiplier FLOAT DEFAULT 1.0,	--коэфициент на цену билета в зависимости от фильма
-age_restriction INT NOT NULL DEFAULT 18	--ограничения по возрасту
+poster VARCHAR(MAX),			--reference to pic with poster
+price_multiplier FLOAT DEFAULT 1.0,	
+age_restriction INT NOT NULL DEFAULT 18	
 );
 
 CREATE TABLE Clients
@@ -27,8 +28,8 @@ CREATE TABLE Halls
 id INT PRIMARY KEY IDENTITY(1,1),
 hall_name NVARCHAR(MAX) NOT NULL CHECK(hall_name != ''),
 capacity INT NOT NULL CHECK(capacity > 0),
-row INT NOT NULL CHECK(row > 0),	--максимальное количество рядов в зале
-seat INT NOT NULL CHECK(seat > 0)	--максимальное количество мест в ряду
+row INT NOT NULL CHECK(row > 0),	--max row count in the hall
+seat INT NOT NULL CHECK(seat > 0)	--max seats count in the hall
 );
 
 CREATE TABLE Schedule
@@ -38,7 +39,7 @@ movie_id INT NOT NULL REFERENCES Movies(id) ON DELETE NO ACTION,
 hall_id INT NOT NULL REFERENCES Halls(id) ON DELETE NO ACTION,
 show_time DATETIME NOT NULL CHECK (show_time > GETDATE()),
 price MONEY NOT NULL DEFAULT 200,
-price_multiplier FLOAT DEFAULT 1.0		--коэфициент на стоимость билета в зависимости от конкретного сеанса
+price_multiplier FLOAT DEFAULT 1.0		--price multiplier depending on time of show 
 );
 
 CREATE TABLE Orders
@@ -46,8 +47,8 @@ CREATE TABLE Orders
 id INT PRIMARY KEY IDENTITY (1,1),
 client_id INT NOT NULL REFERENCES Clients(id) ON DELETE NO ACTION,
 schedule_id INT NOT NULL REFERENCES Schedule(id) ON DELETE NO ACTION,
-booking BIT NOT NULL DEFAULT 0,		--статус заказа: билет забронирован
-sold BIT NOT NULL DEFAULT 0,		--статус заказа: билет куплен
+booking BIT NOT NULL DEFAULT 0,		--order status: ticked booked if value equals 1
+sold BIT NOT NULL DEFAULT 0,		--order status: ticked sold if value equals 1
 order_date DATETIME DEFAULT GETDATE()
 );
 

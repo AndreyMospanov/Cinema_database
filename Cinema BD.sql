@@ -60,10 +60,9 @@ order_date DATETIME DEFAULT GETDATE()
 );
 
 GO
-
 CREATE VIEW Schedule_FullView
 AS
-SELECT movie_name AS Movie, hall_name AS Hall, show_time AS Time, price * Schedule.price_multiplier AS price FROM Schedule
+SELECT movie_name AS Movie, hall_name AS Hall, show_time AS Time, price  FROM Schedule
 JOIN Movies ON Schedule.movie_id = Movies.id
 JOIN Halls ON Schedule.hall_id = Halls.id
 
@@ -72,7 +71,7 @@ CREATE PROCEDURE sp_movie_sells	--сколько выручено за конкретный фильм
 @name NVARCHAR(30)
 AS
 BEGIN
-SELECT movie_name, SUM(Schedule.price*Schedule.price_multiplier) FROM Orders AS o
+SELECT movie_name, SUM(Schedule.price) FROM Orders AS o
 JOIN Schedule ON o.schedule_id = Schedule.id
 JOIN Movies ON Schedule.movie_id = Movies.id
 WHERE movie_name = @name AND o.sold = 1
@@ -102,8 +101,8 @@ IF((SELECT row FROM Halls JOIN Schedule AS s ON s.hall_id = Halls.id WHERE s.id 
 BEGIN
 	IF((SELECT seat FROM Halls JOIN Schedule AS s ON s.hall_id = Halls.id WHERE s.id = @schedule_id) <= @seat)
 	BEGIN
-		INSERT INTO  Orders VALUES
-		(@client_id, @schedule_id, 1, 0, GETDATE())
+		INSERT INTO Orders VALUES
+		(@client_id, @schedule_id, @row, @seat, 1, 0, GETDATE())
 	END
 END
 
@@ -119,20 +118,19 @@ DECLARE @temp INT
 IF(@row < (SELECT row FROM Halls JOIN Schedule AS s ON s.hall_id = Halls.id WHERE s.id = 1))
 BEGIN
 	IF(@seat <= (SELECT seat FROM Halls JOIN Schedule AS s ON s.hall_id = Halls.id WHERE s.id = @schedule_id))
-	BEGIN
-	IF(SELECT order_id FROM Orders WHERE 
+	BEGIN	
 		INSERT INTO  Orders VALUES
-		(@client_id, @schedule_id, 0, 1, GETDATE())
+		(@client_id, @schedule_id, @row, @seat, 0, 1, GETDATE())
 	END
 END
 
 GO
 INSERT INTO Movies VALUES
-('Interstellar', 180, 'Sci-Fi', 2014, null, 1, 18),
-('Inception', 150, 'Sci-Fi', 2010, null, 1, 18),
-('Lion King', 120, 'Animation', 1994, null, 1, 18),
-('Terminator 2', 120, 'Action', 1991, null, 1, 18),
-('Snatch', 100, 'Criminal', 1995, null, 1, 18)
+('Interstellar', 180, 'Sci-Fi', 2014, null, 18),
+('Inception', 150, 'Sci-Fi', 2010, null, 18),
+('Lion King', 120, 'Animation', 1994, null, 18),
+('Terminator 2', 120, 'Action', 1991, null, 18),
+('Snatch', 100, 'Criminal', 1995, null, 18)
 
 INSERT INTO Clients VALUES
 ('unregistered', NULL, '2000-01-01')
@@ -143,12 +141,12 @@ INSERT INTO Halls VALUES
 ('зал 3 IMAX', 200, 20, 10)
 
 INSERT INTO Schedule VALUES
-(1, 1, '29/03/2023 20:00', 300, 1.2),
-(1, 2, '30/03/2023 20:00', 300, 1.2),
-(2, 3, '29/03/2023 18:00', 450, 1.0),
-(3, 2, '29/03/2023 16:00', 200, 1.2),
-(4, 3, '29/03/2023 20:00', 300, 1.2),
-(5, 1, '30/03/2023 20:00', 250, 1.0)
+(1, 1, '29/03/2023 20:00', 300),
+(1, 2, '30/03/2023 20:00', 300),
+(2, 3, '29/03/2023 18:00', 450),
+(3, 2, '29/03/2023 16:00', 200),
+(4, 3, '29/03/2023 20:00', 300),
+(5, 1, '30/03/2023 20:00', 250)
 
 GO
 SELECT * FROM Schedule_FullView
